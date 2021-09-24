@@ -1,0 +1,12 @@
+c:\users\taji\documents\visual studio 2015\Projects\Proyecto_2\Proyecto_2\bin\Debug\Proyecto_2.exe.config
+c:\users\taji\documents\visual studio 2015\Projects\Proyecto_2\Proyecto_2\bin\Debug\Proyecto_2.exe
+c:\users\taji\documents\visual studio 2015\Projects\Proyecto_2\Proyecto_2\bin\Debug\Proyecto_2.pdb
+c:\users\taji\documents\visual studio 2015\Projects\Proyecto_2\Proyecto_2\obj\Debug\Proyecto_2.csprojResolveAssemblyReference.cache
+c:\users\taji\documents\visual studio 2015\Projects\Proyecto_2\Proyecto_2\obj\Debug\Proyecto_2.Form1.resources
+c:\users\taji\documents\visual studio 2015\Projects\Proyecto_2\Proyecto_2\obj\Debug\Proyecto_2.Properties.Resources.resources
+c:\users\taji\documents\visual studio 2015\Projects\Proyecto_2\Proyecto_2\obj\Debug\Proyecto_2.csproj.GenerateResource.Cache
+c:\users\taji\documents\visual studio 2015\Projects\Proyecto_2\Proyecto_2\obj\Debug\Proyecto_2.exe
+c:\users\taji\documents\visual studio 2015\Projects\Proyecto_2\Proyecto_2\obj\Debug\Proyecto_2.pdb
+C:\Users\TAJI\documents\visual studio 2015\Projects\Proyecto_2\Proyecto_2\bin\Debug\GOLD Engine.dll
+C:\Users\TAJI\documents\visual studio 2015\Projects\Proyecto_2\Proyecto_2\bin\Debug\Irony.dll
+C:\Users\TAJI\documents\visual studio 2015\Projects\Proyecto_2\Proyecto_2\bin\Debug\Irony.pdb

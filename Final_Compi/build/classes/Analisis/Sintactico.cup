@@ -1,0 +1,232 @@
+
+package Analisis;
+
+import java_cup.runtime.*;
+import final_compi.*;
+import arbol.Nodo;
+import java.util.ArrayList;
+import java.util.Collection;
+parser code
+{:
+    /**Metodo al que se llama automáticamente ante algún error sintactico.*/
+    public void syntax_error(Symbol s){
+        System.err.println("Error en la Línea " + (s.right+1) +" Columna "+(s.left+1)+ ". Identificador --------------------------------------------------------"
+        +s.value + " no reconocido." );
+        
+    }
+
+    /**Metodo al que se llama en el momento en que ya no es posible una recuperación de
+    errores.*/
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
+        System.err.println("Error en la Línea " + (s.right+1)+ "Columna "+(s.left+1) +". Identificador -----------------------------------------------------------" +
+        s.value + " no reconocido.");
+        
+    
+    }
+
+    /*public Nodo getRaiz(){
+        return action_obj.raiz;
+    }*/
+:}
+
+
+action code {:
+    //Nodo raiz=null;
+    ArrayList<Nodo> CC_hijos = new ArrayList();
+    ArrayList<Nodo> LL_iden = new ArrayList();
+    ArrayList<Nodo> LL_vector = new ArrayList();
+:}
+
+/*terminales reservados*/
+terminal String resImport,resClass,resExtends,resNew,resPublic,resPrivate,resProtected,resFinal;
+
+terminal String resBoolean,resChar,resDouble,resInt,resString;
+
+terminal String resVoid,resOverride,resReturn,resBreak,resContinue;
+
+terminal String resWhile,resFor,resIf,resElse,resDo,resSwitch,resCase,resDefault;
+
+terminal String mas,masmas,menosmenos,menos,mul,div,mod,pot,igual,puntoComa,coma,punto,dosPuntos;
+
+terminal String cora,corc,para,parc,llavea,llavec;
+
+terminal simAnd,simOr,simNot,mayor,menor,mayorigual,menorigual,igualigual,diferente;
+
+terminal String entero,decimal,cadena,iden,caracter,comLin,comMul,resPrint,resDibujar,resErrores,resTabla,resClean;
+
+
+/*
+* Este terminal tiene un valor string. Recuerda que le dábamos el valor
+* en el código del analizador léxico, al darle como parámetro un valor
+* string al objeto Symbolo.
+*/
+
+
+/*
+* Aquí están los no terminales
+*/
+non terminal INI,INICIO,IMPOR_COMEN,INI_CLASS,IMPORTS_COMENTARIOS,EPSILON,LISTA_ID,ACCESO,EXTIENDE,CODIGO,CODIGO_CUERPO;
+
+non terminal DECLARACION,METODO,FUNCION,CONSTRUCTOR,SOBREESCRITURA,TIPO_DATO,PARAMETROS,SENTENCIAS,DEF_PARAMETROS,LISTA_IDEN;
+
+non terminal ASIGNACION,ASIGNACION_DECLARACION,EXP,CUERPO_SENTENCIAS,SENTENCIAS_CONTROL,CONDICION,LISTA_ID_PUNTO,LISTA_E,LISTA_EE;
+
+non terminal IF_IF,WHILE_WHILE,FOR_FOR,DO_WHILE,SWITCH_SWITCH,ELSE_IF,DEF_ELSE_IF,FOR_ASIGNACION,ASI_DECLA,CASE_CASE,CASE_DEF;
+
+non terminal VALOR_CASE,CONDICION_LOGICA,CON_OPERADORES,E,T,COND2,NATIVAS;
+
+non terminal LISTA_DIMEN,VECTOR,DIME,DECLA_VECTOR,LISTA_VALORES,VALORES,DEF_VALORES,ASIGNACION_VECTOR,LLAMAR_VECTOR;
+
+/* Precedencia */
+precedence left mas, menos;
+precedence left mul, div;
+
+/* ­­­­­­­­­­­­­­ Declaración de la gramática  ­­­­­­­­­­­ */
+start with INI; // start with sirve para indicarle al parser con que produccion empezar
+
+
+
+INI::= CODIGO:Cod  {: System.out.println("Exito");
+                      Nodo n = new Nodo("Inicio",0,0,"-");n.hijos.addAll((Collection<? extends Nodo>) CC_hijos);Interfaz.arbol = n; :};
+  
+
+CODIGO ::= CODIGO:c  CODIGO_CUERPO:c1   {: CC_hijos.add((Nodo) c1); :} 
+         | CODIGO_CUERPO:c2             {: CC_hijos.add((Nodo) c2); :};
+
+CODIGO_CUERPO ::=  DECLARACION:c1       {: Nodo n = new Nodo("DECLARACION \n DE \n VARIABLES",0,0,"-");n.hijos.addAll((Collection<? extends Nodo>) c1);RESULT = n; :}
+                |  DECLA_VECTOR:c2      {: Nodo n = new Nodo("DECLARACION \n DE \n VECTORES",0,0,"-");n.hijos.addAll((Collection<? extends Nodo>) c2);RESULT = n; :}
+                |  ASIGNACION:c3        {: Nodo n = new Nodo("ASIGNACION \n EN \n VARIABLES",0,0,"-");n.hijos.addAll((Collection<? extends Nodo>) c3);RESULT = n; :}
+                |  ASIGNACION_VECTOR:c4 {: Nodo n = new Nodo("ASIGNACION \n EN \n VECTORES",0,0,"-");n.hijos.addAll((Collection<? extends Nodo>) c4);RESULT = n; :}
+                |  NATIVAS:c5           {: Nodo n = new Nodo("FUN \n NATIVAS",0,0,"-");              n.hijos.addAll((Collection<? extends Nodo>) c5);RESULT = n; :};
+
+
+
+DECLARACION ::=   TIPO_DATO:tip   LISTA_IDEN   ASIGNACION_DECLARACION:ad  puntoComa
+            {:Nodo n = new Nodo("TIPO DE DATO",tipright,tipleft,tip);
+            Nodo n1 = new Nodo("LISTA ID",0,0,"-");
+            Nodo n2 = new Nodo("ASIGNACION",0,0,"-");
+
+            n1.hijos.addAll((Collection<? extends Nodo>) LL_iden);
+            n2.hijos.add((Nodo) ad);
+
+            ArrayList<Nodo> hermanos = new ArrayList();
+            hermanos.add(n);
+            hermanos.add(n1);
+            hermanos.add(n2);
+            LL_iden.clear();
+            RESULT = hermanos;:} ; 
+  
+DECLA_VECTOR::=  TIPO_DATO:tip   iden:id   LISTA_DIMEN  igual  VECTOR puntoComa
+            {:Nodo n = new Nodo("TIPO DE DATO",tipright,tipleft,tip);
+            Nodo n1 = new Nodo("ID",idright,idleft,id);
+            Nodo n2 = new Nodo("DIMENSION \n VECTOR",0,0,"-");
+
+            n2.hijos.addAll((Collection<? extends Nodo>) LL_vector);
+
+            ArrayList<Nodo> hermanos = new ArrayList();
+            hermanos.add(n);
+            hermanos.add(n1);
+            hermanos.add(n2);
+            LL_vector.clear();
+            RESULT = hermanos;:};
+
+
+LISTA_DIMEN ::= LISTA_DIMEN  DIME:d1   {: LL_vector.add((Nodo) d1); :} 
+              | DIME:d2                {: LL_vector.add((Nodo) d2); :} ;
+
+DIME ::= cora  corc         {: Nodo n = new Nodo("VEC",0,0," []"); RESULT = n; :}
+       | cora EXP:e corc      {: Nodo n = new Nodo("VEC_HI",0,0," [] "); n.hijos.addAll((Collection<? extends Nodo>) e); RESULT = n; :};
+
+
+VECTOR ::= resNew  TIPO_DATO LISTA_DIMEN 
+         | llavea LISTA_VALORES llavec  ;
+
+LISTA_VALORES::= LISTA_VALORES coma VALORES
+               | VALORES;
+
+VALORES::= llavea DEF_VALORES  llavec;
+
+DEF_VALORES::= DEF_VALORES coma  EXP
+             | EXP;
+
+
+
+
+TIPO_DATO ::= resString        {:RESULT= "String";:}
+            | resDouble        {:RESULT= "Double";:};
+
+LISTA_IDEN ::= LISTA_IDEN:lista  coma  iden:id1  {: Nodo n = new Nodo("ID",id1right,id1left,id1);LL_iden.add((Nodo) n); :}
+             | iden:id2                          {: Nodo n = new Nodo("ID",id2right,id2left,id2);LL_iden.add((Nodo) n); :};
+            
+ASIGNACION_DECLARACION ::= igual  EXP:exp   {: Nodo n = new Nodo("EXPRESION",0,0,"-"); n.hijos.addAll((Collection<? extends Nodo>) exp); RESULT = n; :}
+                        | EPSILON           {: Nodo n = new Nodo("EPSILON",0,0,"-"); RESULT = n; :};
+
+
+
+ASIGNACION::= iden:id igual  EXP:exp  puntoComa
+            {:Nodo n = new Nodo("ID",idright,idleft,id);
+            Nodo n1 = new Nodo("EXPRESION",0,0,"-");
+
+            n1.hijos.addAll((Collection<? extends Nodo>) exp);;
+
+            ArrayList<Nodo> hermanos = new ArrayList();
+            hermanos.add(n);
+            hermanos.add(n1);
+            RESULT = hermanos;:} ; 
+
+ASIGNACION_VECTOR::= iden:id  LISTA_DIMEN igual  EXP:exp  puntoComa
+            {:Nodo n = new Nodo("ID",idright,idleft,id);
+            Nodo n1 = new Nodo("DIMENSION \n VECTOR",0,0,"-");
+            Nodo n2 = new Nodo("EXPRESION",0,0,"-");
+
+            n1.hijos.addAll((Collection<? extends Nodo>) LL_vector);
+            n2.hijos.addAll((Collection<? extends Nodo>) exp);;
+
+            ArrayList<Nodo> hermanos = new ArrayList();
+            hermanos.add(n);
+            hermanos.add(n1);
+            hermanos.add(n2);
+            LL_vector.clear();
+            RESULT = hermanos;:};
+
+
+
+NATIVAS::= resPrint:p  para EXP:e parc puntoComa    {: Nodo n = new Nodo("PRINT",pright,pleft,"-"); n.hijos.addAll((Collection<? extends Nodo>) e);ArrayList<Nodo> hermanos = new ArrayList();hermanos.add(n);RESULT = hermanos; :}
+         | resDibujar:d para parc puntoComa       {: Nodo n = new Nodo("DIBUJAR",dright,dleft,"-"); ArrayList<Nodo> hermanos = new ArrayList();hermanos.add(n);RESULT = hermanos; :}
+         | resErrores:e para parc puntoComa       {: Nodo n = new Nodo("ERRORES",eright,eleft,"-"); ArrayList<Nodo> hermanos = new ArrayList();hermanos.add(n);RESULT = hermanos; :}
+         | resTabla:t  para parc puntoComa        {: Nodo n = new Nodo("TABLA",tright,tleft,"-"); ArrayList<Nodo> hermanos = new ArrayList();hermanos.add(n);RESULT = hermanos; :}
+         | resClean:c  para parc puntoComa        {: Nodo n = new Nodo("CLEAN",cright,cleft,"-"); ArrayList<Nodo> hermanos = new ArrayList();hermanos.add(n);RESULT = hermanos; :};
+
+
+EXP::= E:e2     {: RESULT = e2; :}    ;
+
+
+E::= E:e1 mas:m1   T:t1      {: Nodo n = new Nodo("Mas",m1right,m1left,"+"); n.hijos.addAll((Collection<? extends Nodo>) e1);
+                                        n.hijos.addAll((Collection<? extends Nodo>) t1);  ArrayList<Nodo> hermanos = new ArrayList();hermanos.add(n);RESULT = hermanos; :}      
+   | E:e2 menos:m2 T:t2      {: Nodo n = new Nodo("Menos",m2right,m2left," - "); n.hijos.addAll((Collection<? extends Nodo>) e2);
+                                        n.hijos.addAll((Collection<? extends Nodo>) t2);  ArrayList<Nodo> hermanos = new ArrayList();hermanos.add(n);RESULT = hermanos; :}      
+   | E:e3 mul:m3   T:t3      {: Nodo n = new Nodo("Multi",m3right,m3left,"*"); n.hijos.addAll((Collection<? extends Nodo>) e3);
+                                        n.hijos.addAll((Collection<? extends Nodo>) t3);  ArrayList<Nodo> hermanos = new ArrayList();hermanos.add(n);RESULT = hermanos; :}       
+   | E:e4 div:m4   T:t4      {: Nodo n = new Nodo("Div",m4right,m4left,"/"); n.hijos.addAll((Collection<? extends Nodo>) e4);
+                                        n.hijos.addAll((Collection<? extends Nodo>) t4);  ArrayList<Nodo> hermanos = new ArrayList();hermanos.add(n);RESULT = hermanos; :}       
+   | E:e5 pot:m5   T:t5      {: Nodo n = new Nodo("Poten",m5right,m5left,"^"); n.hijos.addAll((Collection<? extends Nodo>) e5);
+                                        n.hijos.addAll((Collection<? extends Nodo>) t5);  ArrayList<Nodo> hermanos = new ArrayList();hermanos.add(n);RESULT = hermanos; :}       
+   | T:t6                    {: RESULT = t6; :};
+
+
+T::= decimal:t1                {: Nodo n = new Nodo("Double",t1right,t1left,t1); ArrayList<Nodo> hermanos = new ArrayList();hermanos.add(n);RESULT = hermanos;:}
+   | iden:t2                   {: Nodo n = new Nodo("ID",t2right,t2left,t2);  ArrayList<Nodo> hermanos = new ArrayList();hermanos.add(n);RESULT = hermanos;:}
+   | LLAMAR_VECTOR:t3          {: Nodo n = new Nodo("LLAMAR \n VECTOR",0,0,"-"); n.hijos.addAll((Collection<? extends Nodo>) t3); ArrayList<Nodo> hermanos = new ArrayList();hermanos.add(n);RESULT = hermanos;:}
+   | entero:t4                 {: Nodo n = new Nodo("Double",t4right,t4left,t4); ArrayList<Nodo> hermanos = new ArrayList();hermanos.add(n);RESULT = hermanos;:}
+   | cadena:t5                 {: Nodo n = new Nodo("String",t5right,t5left,t5); ArrayList<Nodo> hermanos = new ArrayList();hermanos.add(n);RESULT = hermanos;:} ;
+
+LLAMAR_VECTOR::= iden:t3  LISTA_DIMEN      {: Nodo n = new Nodo("IDEN",t3right,t3left,t3); 
+                                            Nodo n1 = new Nodo("DIMENSION \n VECTOR",0,0,"-");
+                                            n1.hijos.addAll((Collection<? extends Nodo>) LL_vector);
+                                            ArrayList<Nodo> hermanos = new ArrayList();
+                                            hermanos.add(n);hermanos.add(n1);
+                                            LL_vector.clear();
+                                            RESULT = hermanos;:};
+
+EPSILON ::= ;
+
